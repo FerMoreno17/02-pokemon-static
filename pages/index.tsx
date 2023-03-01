@@ -1,35 +1,46 @@
-import { Button } from "@nextui-org/react";
+import { Grid } from "@nextui-org/react";
 import { Inter } from "next/font/google";
 import { MainLayout } from "../components/layouts";
+import { GetStaticProps } from "next";
+import pokeApi from "../api/axios";
+import { PokemonListResponse, SmallPokemon } from "../interfaces/pokemon-list";
+import { PokemonCard } from "pokemon/components/ui";
 
 const inter = Inter({ subsets: ["latin"] });
+export const pokemonLimit = 151;
 
-export default function Home(props: any) {
-  console.log({ props });
+interface Props {
+  pokemons: SmallPokemon[];
+}
+
+export default function Home({ pokemons }: Props) {
   return (
     <MainLayout title="Listado">
       <h1>Pokemon</h1>
-      <ul>
-        <li>Item</li>
-        <li>Item</li>
-        <li>Item</li>
-        <li>Item</li>
-      </ul>
+      <Grid.Container gap={2} justify={"flex-start"}>
+        {pokemons.map((pokemon, i) => (
+          <PokemonCard key={i} pokemon={pokemon} />
+        ))}
+      </Grid.Container>
     </MainLayout>
   );
 }
 
-// You should use getStaticProps when:
-//- The data required to render the page is available at build time ahead of a user’s request.
-//- The data comes from a headless CMS.
-//- The data can be publicly cached (not user-specific).
-//- The page must be pre-rendered (for SEO) and be very fast — getStaticProps generates HTML and JSON files, both of which can be cached by a CDN for performance.
-import { GetStaticProps } from "next";
-
 export const getStaticProps: GetStaticProps = async (ctx) => {
+  const { data } = await pokeApi.get<PokemonListResponse>(
+    `/pokemon?limit=${pokemonLimit}`
+  );
+  const pokemons = data.results.map((pokemon, i) => ({
+    ...pokemon,
+    id: i + 1,
+    img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${
+      i + 1
+    }.png`,
+  }));
+
   return {
     props: {
-      name: "algo",
+      pokemons: pokemons,
     },
   };
 };
