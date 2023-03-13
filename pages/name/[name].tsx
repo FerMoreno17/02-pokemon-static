@@ -1,6 +1,6 @@
 import { GetStaticPaths, GetStaticProps } from "next";
 import { pokeApi } from "pokemon/api";
-import { PokemonFull } from "pokemon/interfaces";
+import { PokemonFull, PokemonListResponse } from "pokemon/interfaces";
 import React, { useState } from "react";
 import { MainLayout } from "../../components/layouts/MainLayout";
 import { pokemonLimit } from "../index";
@@ -12,7 +12,7 @@ interface Props {
   pokemon: PokemonFull;
 }
 
-const PokemonPage = ({ pokemon }: Props) => {
+const PokemonByName = ({ pokemon }: Props) => {
   const [favourites, setFavourites] = useState(existInFavourites(pokemon.id));
 
   function handleFavouritesToggle() {
@@ -91,20 +91,21 @@ const PokemonPage = ({ pokemon }: Props) => {
 };
 
 export const getStaticPaths: GetStaticPaths = async (ctx) => {
-  const pokemonsArray = [...Array(pokemonLimit)].map(
-    (value, index) => `${index + 1}`
+  const { data } = await pokeApi.get<PokemonListResponse>(
+    `/pokemon?limit=${pokemonLimit}`
   );
+  const pokemonsName: string[] = data.results.map((pokemon) => pokemon.name);
 
   return {
-    paths: pokemonsArray.map((id) => ({
-      params: { id: id },
+    paths: pokemonsName.map((name) => ({
+      params: { name },
     })),
     fallback: false,
   };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { data } = await pokeApi.get<PokemonFull>(`/pokemon/${params?.id}`);
+  const { data } = await pokeApi.get<PokemonFull>(`/pokemon/${params?.name}`);
 
   const pokemon = {
     id: data.id,
@@ -119,4 +120,4 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   };
 };
 
-export default PokemonPage;
+export default PokemonByName;
