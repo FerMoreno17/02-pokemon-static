@@ -7,6 +7,8 @@ interface IProps {
   title?: string;
 }
 
+const origin = typeof window === "undefined" ? "" : window.location.origin;
+
 export const MainLayout = ({ children, title }: IProps) => {
   return (
     <>
@@ -18,6 +20,15 @@ export const MainLayout = ({ children, title }: IProps) => {
           content={`Información sobre el pokemon ${title}`}
         />
         <meta name="keywords" content={`pokemon, pokedex, ${title}`} />
+        <meta property="og:title" content={`Información sobre ${title}`} />
+        <meta
+          property="og:description"
+          content={`Pagina informativa sobre el pokemon ${title}`}
+        />
+        <meta
+          property="og:image"
+          content={`${origin}/images/imagePokemon.jpg`}
+        />
       </Head>
       <Navbar />
 
