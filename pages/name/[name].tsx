@@ -7,6 +7,7 @@ import { pokemonLimit } from "../index";
 import { Button, Card, Container, Grid, Text, Image } from "@nextui-org/react";
 import handleAddFavourites from "pokemon/utils/localstorage";
 import { existInFavourites } from "../../utils/localstorage";
+import { getPokemonInfo } from "pokemon/utils/getPokemonInfo";
 
 interface Props {
   pokemon: PokemonFull;
@@ -105,18 +106,22 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { data } = await pokeApi.get<PokemonFull>(`/pokemon/${params?.name}`);
-
-  const pokemon = {
-    id: data.id,
-    name: data.name,
-    sprites: data.sprites,
-  };
-
+  const pokemon = await getPokemonInfo(
+    params?.name?.toString().toLowerCase() as string
+  );
+  if (!pokemon) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
   return {
     props: {
       pokemon: pokemon,
     },
+    revalidate: 86400, //revalida cada 24hs, es decir 86400 seg
   };
 };
 
