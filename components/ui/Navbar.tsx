@@ -33,7 +33,7 @@ export const Navbar = () => {
         </Text>
       </Link>
       <Spacer css={{ flex: 1 }} />
-      <Link href={"/favoritos"} style={{ marginRight: 20 }}>
+      <Link href={"/favorites"} style={{ marginRight: 20 }}>
         <Text color="white">Favoritos</Text>
       </Link>
     </div>
